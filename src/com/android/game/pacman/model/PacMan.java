@@ -1,7 +1,5 @@
 package com.android.game.pacman.model;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
@@ -13,19 +11,17 @@ import com.android.game.pacman.utils.GameEnum;
 
 public class PacMan extends GameObject {
 
-	
 	// rectangle
-	
+
 	private int frameNr; // number of frames in animation
 	private int currentFrame = 0; // the current frame
 	private double frameTicker; // the time of the last frame update
 	private int framePeriod; // milliseconds between each frame (1000/fps)
-// the height of the sprite
+	// the height of the sprite
 	private Resources res;
 	private float x1, x2, y1, y2, dx, dy;
 	private boolean isPlaying = false;
 	boolean swap = false;
-	
 	public PacMan(Resources res, Vect initPosition, Context context,
 			Block[][] board, int size, int speed) {
 		super(size, speed, board);
@@ -46,29 +42,26 @@ public class PacMan extends GameObject {
 		direction = new Vect(0, 1);
 
 		this.size = size;
-		stop=true;
+		stop = true;
 	}
 
 	@Override
 	public void draw(Canvas canvas) {
-		Rect destRect = new Rect(position.x, position.y, position.x
-				+ spriteWidth, position.y + spriteHeight);
-		if (rotate) {
+		boundingRect.set(position.x, position.y, position.x + spriteWidth,
+				position.y + spriteHeight);
+
+		
 			canvas.save();
 			canvas.rotate((float) angle,
 					(float) position.x + (spriteWidth / 2), (float) position.y
 							+ (spriteHeight / 2));
 
-			canvas.drawBitmap(bitmap, sourceRect, destRect, null);
+			canvas.drawBitmap(bitmap, sourceRect, boundingRect, null);
 			canvas.restore();
 
-			rotate = false;
-		} else {
+		
+		
 
-			canvas.drawBitmap(bitmap, sourceRect, destRect, null);
-
-		}
-		boundingRect = destRect;
 	}
 
 	// the update method for ship
@@ -76,7 +69,7 @@ public class PacMan extends GameObject {
 
 		move();
 		calculateSourceRect(gameTime);
-		borders();
+		//borders();
 		handleSound();
 		canChangeDir();
 
@@ -161,6 +154,12 @@ public class PacMan extends GameObject {
 		// define the rectangle to cut out sprite
 		sourceRect.left = currentFrame * spriteWidth;
 		sourceRect.right = sourceRect.left + spriteWidth;
+	}
+
+	public void die() {
+		stop=true;
+		
+		
 	}
 
 }

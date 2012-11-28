@@ -5,28 +5,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.LinkedList;
 
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.util.Log;
 
 import com.adroid.game.pacman.R;
 import com.android.game.pacman.utils.GameEnum;
 
 public class Board {
 
-	private ArrayList<SolidObject> bGame;
+	private LinkedList<SolidObject> bGame;
 	private int x;
 	private int y;
 	private int size;
 	private char[][] lvl;
-	private ArrayList<Block> path;
-	private ArrayList<Block> wall;
+	private LinkedList<Block> path;
+	private LinkedList<Block> wall;
 	private Block[][] blockTab;
 	Resources res;
 
@@ -36,10 +30,10 @@ public class Board {
 		this.size = size;
 		this.res = res;
 		blockTab = new Block[x][y];
-		bGame = new ArrayList<SolidObject>(x * y);
+		bGame = new LinkedList<SolidObject>();
 		lvl = readLvl(x, y, res);
-		path = new ArrayList<Block>();
-		wall = new ArrayList<Block>();
+		path = new LinkedList<Block>();
+		wall = new LinkedList<Block>();
 		// Bitmap bitmap=
 		for (int i = 0; i < y; i++) {
 			for (int j = 0; j < x; j++) {
@@ -84,13 +78,13 @@ public class Board {
 	}
 
 	private void setFood(int x, int y, Resources res) {
-		Food newF = new Food(x, y, res,GameEnum.FOOD);
+		Food newF = new Food(x, y, res);
 		bGame.add(newF);
 		setPath(x, y);
 	}
 
 	private void setFoodUp(int x, int y, Resources res) {
-		Food newF = new Food(x, y, res,GameEnum.FOODUP);
+		FoodUp newF = new FoodUp(x, y, res);
 		
 		bGame.add(newF);
 		setPath(x, y);
@@ -101,15 +95,15 @@ public class Board {
 		return blockTab;
 	}
 
-	public ArrayList<SolidObject> getbGame() {
+	public LinkedList<SolidObject> getbGame() {
 		return bGame;
 	}
 
-	public ArrayList<Block> getPath() {
+	public LinkedList<Block> getPath() {
 		return path;
 	}
 
-	public ArrayList<Block> getWall() {
+	public LinkedList<Block> getWall() {
 		return wall;
 	}
 
