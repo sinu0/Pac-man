@@ -16,14 +16,15 @@ public class PacMan extends GameObject {
 	private int frameNr; // number of frames in animation
 	private int currentFrame = 0; // the current frame
 	private double frameTicker; // the time of the last frame update
-	private int framePeriod; // milliseconds between each frame (1000/fps)
+	private float framePeriod; // milliseconds between each frame (1000/fps)
 	// the height of the sprite
 	private Resources res;
 	private float x1, x2, y1, y2, dx, dy;
 	private boolean isPlaying = false;
 	boolean swap = false;
+	private int soundID=-1;
 	public PacMan(Resources res, Vect initPosition, Context context,
-			Block[][] board, int size, int speed) {
+			Block[][] board, int size, float speed) {
 		super(size, speed, board);
 		dirToChange = GameEnum.STOP;
 		this.res = res;
@@ -34,9 +35,11 @@ public class PacMan extends GameObject {
 		spriteWidth = bitmap.getWidth() / 3; // ilosc dostepnych klatek
 		sourceRect = new Rect(0, 0, spriteWidth, spriteHeight);
 		frameNr = 6;
-		framePeriod = 1000 / 6;
-
-		SoundStuff.sp.play(SoundStuff.pacamnWalk, 1, 1, 1, -1, 1);
+		framePeriod = (float)(0.25)/2 ;
+		do {
+			soundID=SoundStuff.sp.play(SoundStuff.pacamnWalk, 1, 1, 1, -1, 1);
+		} while(soundID==0 );
+		
 		nextDir = GameEnum.STOP;
 
 		direction = new Vect(0, 1);
@@ -65,9 +68,9 @@ public class PacMan extends GameObject {
 	}
 
 	// the update method for ship
-	public void update(long gameTime, int canvasWidth, int canvasHeiht) {
+	public void update(float gameTime, int canvasWidth, int canvasHeiht) {
 
-		move();
+		move(gameTime);
 		calculateSourceRect(gameTime);
 		//borders();
 		handleSound();
@@ -116,10 +119,10 @@ public class PacMan extends GameObject {
 
 	public void handleSound() {
 		if (stop) {
-			SoundStuff.sp.pause(SoundStuff.pacamnWalk);
+			SoundStuff.sp.pause(soundID);
 			isPlaying = false;
 		} else if (!isPlaying) {
-			SoundStuff.sp.resume(SoundStuff.pacamnWalk);
+			SoundStuff.sp.resume(soundID);
 			isPlaying = true;
 		}
 	}
@@ -135,10 +138,11 @@ public class PacMan extends GameObject {
 		}
 	}
 
-	private void calculateSourceRect(long gameTime) {
+	private void calculateSourceRect(float gameTime) {
 		if (!stop) {
-			if (gameTime > frameTicker + framePeriod) {
-				frameTicker = gameTime;
+			frameTicker+= gameTime;
+			if (frameTicker >   framePeriod) {
+				frameTicker = 0;
 				// increment the frame
 				if (!swap)
 					currentFrame++;
@@ -146,6 +150,7 @@ public class PacMan extends GameObject {
 					currentFrame--;
 				if (currentFrame == 0 || currentFrame == 2) {
 					swap = !swap;
+					
 				}
 
 			}

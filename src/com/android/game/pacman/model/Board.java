@@ -27,7 +27,7 @@ public class Board {
 	public Board(int x, int y, int size, Resources res) {
 		this.x = x;
 		this.y = y;
-		this.size = size;
+		this.size = size; 
 		this.res = res;
 		blockTab = new Block[x][y];
 		bGame = new LinkedList<SolidObject>();

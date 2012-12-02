@@ -16,6 +16,10 @@ public class Ghost extends GameObject {
 	private LinkedList<GameEnum> movement;
 	private int lvl;// table of actual lvl importanto to do ai
 	private Rect sourceRect;
+	// uzywane kied duszek jest do zjedzenia
+	private int spriteEatHeight;
+	private int spriteEatWidth;
+	private Rect sourceEatRect;
 
 	private Bitmap eyes;
 	private Bitmap eatableBitmap;
@@ -26,20 +30,36 @@ public class Ghost extends GameObject {
 
 	private int farame = 0;
 	private int framecount = 0;
-	private long frameTicker;
-	private int framePeriod;
+	private float frameTicker;
+	private int framePeriod = 500;
 	private boolean swap;
 
-	public Ghost(int size, int speed, Block[][] board, Resources res,
+	private double time; // do mrugania;
+	private int currentFrame;
+	private int add;
+	private float before;
+	private long after;
+
+	public Ghost(int size, float speed, Block[][] board, Resources res,
 			Vect initPosition) {
 		super(size, speed, board);
+
 		bitmap = BitmapFactory.decodeResource(res,
 				com.adroid.game.pacman.R.drawable.ghost);
-		eatableBitmap = BitmapFactory.decodeResource(res, R.drawable.ghost_eat);
-		eyes = BitmapFactory.decodeResource(res, R.drawable.ghost_eye);
+
 		spriteHeight = bitmap.getHeight();
 		spriteWidth = bitmap.getWidth() / 4; // ilosc dostepnych klatek
 		sourceRect = new Rect(0, 0, spriteWidth, spriteHeight);
+
+		eatableBitmap = BitmapFactory
+				.decodeResource(res, R.drawable.ghost_eat2);
+		spriteEatHeight = eatableBitmap.getHeight();
+		spriteEatWidth = eatableBitmap.getWidth() / 2; // ilosc dostepnych
+														// klatek
+		sourceEatRect = new Rect(0, 0, spriteWidth, spriteHeight);
+
+		eyes = BitmapFactory.decodeResource(res, R.drawable.ghost_eye);
+
 		dirToChange = GameEnum.STOP;
 		this.res = res;
 		position = initPosition;
@@ -53,9 +73,9 @@ public class Ghost extends GameObject {
 
 	}
 
-	public void update(long gameTime, int canvasWidth, int canvasHeiht) {
+	public void update(float gameTime, int canvasWidth, int canvasHeiht) {
 
-		move();
+		move(gameTime);
 		calculateSourceRect(gameTime);
 		canChangeDir();
 		if (eatable) {
@@ -72,7 +92,9 @@ public class Ghost extends GameObject {
 		boundingRect.set(position.x, position.y, position.x + spriteWidth,
 				position.y + spriteHeight);
 		if (eatable) {
-			canvas.drawBitmap(eatableBitmap, position.x, position.y, null);
+			boundingRect.set(position.x, position.y, position.x
+					+ spriteEatWidth, position.y + spriteEatHeight);
+			canvas.drawBitmap(eatableBitmap, sourceEatRect, boundingRect, null);
 		} else if (onlyEyes)
 			canvas.drawBitmap(eyes, position.x, position.y, null);
 		else
@@ -88,9 +110,9 @@ public class Ghost extends GameObject {
 		return eatable;
 	}
 
-	private void calculateSourceRect(long gameTime) {
-		
-		if (!eatable || !onlyEyes) {
+	private void calculateSourceRect(float gameTime) {
+
+		if (!eatable) {
 			if (angle == 270) {// gora
 				sourceRect.left = 1 * spriteWidth;
 				sourceRect.right = sourceRect.left + spriteWidth;
@@ -112,7 +134,36 @@ public class Ghost extends GameObject {
 
 			}
 		} else if (eatable && blinking) {
-			//TODO change spite
+			after += gameTime - before;
+			if (gameTime > frameTicker + framePeriod) {
+				frameTicker = gameTime;
+				// increment the frame
+				if (!swap)
+					currentFrame++;
+				else
+					currentFrame--;
+				if (currentFrame == 0 || currentFrame == 1) {
+					swap = !swap;
+					if (after > 1000) {
+						after = 0;
+						framePeriod -= 80;
+					}
+				}
+
+			}
+			before = gameTime;
+		}
+		// define the rectangle to cut out sprite
+		sourceEatRect.left = currentFrame * spriteEatWidth;
+		sourceEatRect.right = sourceEatRect.left + spriteEatWidth;
+	}
+
+	public void setBlinking(boolean blinking) {
+		this.blinking = blinking;
+		if (!blinking) {
+			after=0;
+			before=0;
+			framePeriod=500;
 		}
 	}
 }

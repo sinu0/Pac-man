@@ -4,17 +4,17 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.util.Log;
+import android.graphics.RectF;
 
 import com.android.game.pacman.utils.GameEnum;
 
 public class GameObject {
 	protected Vect position;
 	protected Bitmap bitmap;
-	public Rect boundingRect = new Rect();
+	public RectF boundingRect = new RectF();
 	protected boolean isTouched = false;
 	protected GameEnum dirToChange;
-	protected int speed;
+	protected float speed;
 	protected boolean rotate = false;
 	protected double angle = 0;
 	protected Vect direction;
@@ -33,7 +33,7 @@ public class GameObject {
 
 	}
 
-	public GameObject(int size, int speed, Block[][] board) {
+	public GameObject(int size, float speed, Block[][] board) {
 		this.speed = speed;
 		this.size = size;
 		this.board = board;
@@ -50,7 +50,7 @@ public class GameObject {
 		canvas.drawBitmap(bitmap, sourceRect, boundingRect, null);
 	}
 
-	synchronized public void move() {
+	synchronized public void move(float dt) {
 
 		if (target == null) {
 			if (dirToChange == GameEnum.UP) {
@@ -77,19 +77,19 @@ public class GameObject {
 				stop = true;
 		}
 		if (target != null) {
-			if (moveTowards(target))
+			if (moveTowards(target,dt))
 				target = null;
 		}
 
 	}
 
-	private boolean moveTowards(Vect goal) {
+	private boolean moveTowards(Vect goal,float dt) {
 		if (position.equals(goal))
 			return true;
 		Vect dir = Vect.normalize(goal.subtract(position)); // kierunek ruchu
-		position = position.add(dir.mulitply(speed)); // nowa pozycja
-
-		if (Math.abs(Vect.dot(dir, Vect.normalize(goal.subtract(position))) + 1) < speed) // jezeli
+		position = position.add(dir.mulitply(speed*dt)); // nowa pozycja
+		
+		if (Math.abs(Vect.dot(dir, Vect.normalize(goal.subtract(position))) + 1) <speed*dt) // jezeli
 																							// minął
 																							// cel
 			position = goal;

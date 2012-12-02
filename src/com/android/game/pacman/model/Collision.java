@@ -1,11 +1,10 @@
 package com.android.game.pacman.model;
 
-import com.android.game.pacman.utils.GameEnum;
-
-import android.R.integer;
 import android.graphics.Rect;
-import android.util.Log;
+import android.graphics.RectF;
 import android.util.Pair;
+
+import com.android.game.pacman.utils.GameEnum;
 
 public class Collision {
 	//nie uzywane
@@ -82,7 +81,7 @@ public class Collision {
 		return new Pair<GameEnum, Double>(GameEnum.NORMAL, Double.valueOf(0));
 
 	}
-    public static boolean detectNormalCollision(Rect one,Rect two){
+    public static boolean detectNormalCollision(RectF one,RectF two){
 		return one.intersect(two);
 	}
 }
