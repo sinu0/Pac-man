@@ -7,6 +7,11 @@ x..........................x
 x.xxxx.xx.xxxxxxxx.xx.xxxx.x
 x.xxxx.xx.xxxxxxxx.xx.xxxx.x
 x......xx....xx....xx......x
+x......xx....x  x..........x
+x.xxxx.xxxxx.x  x xxxxx.xx.x
+x.x  x.x   x.x  x.x   x.xx.x
+x.xxxx.xxxxx.xxxx.xxxxx.xx.x
+x......xx..........xx......x
 xxxxxx.xxxxx0xx0xxxxx.xxxxxx
      x.xxxxx0xx0xxxxx.x     
      x.xx0000000000xx.x     
@@ -17,7 +22,13 @@ xxxxxx.xx0x000000x0xx.xxxxxx
      x.xx0xxxxxxxx0xx.x     
      x.xx0000000000xx.x     
      x.xx0xxxxxxxx0xx.x     
-xxxxxx.xx0xxxxxxxx0xx.xxxxxx
+xxxxxx.xx0xxxx  xx0xx.xxxxxx
+x......xx....x  x..........x
+x.xxxx.xxxxx.x  x xxxxx.xx.x
+x.x  x.x   x.x  x.x   x.xx.x
+x.xxxx.xxxxx.xxxx.xxxxx.xx.x
+x......xx..........xx......x
+xxxxxx.xx.xxxxxxxx.xx.xxxxxx
 x............xx............x
 x.xxxx.xxxxx.xx.xxxxx.xxxx.x
 x.xxxx.xxxxx.xx.xxxxx.xxxx.x

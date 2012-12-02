@@ -31,7 +31,7 @@ public class Ghost extends GameObject {
 	private int farame = 0;
 	private int framecount = 0;
 	private float frameTicker;
-	private int framePeriod = 500;
+	private float framePeriod = 0.5f;
 	private boolean swap;
 
 	private double time; // do mrugania;
@@ -134,9 +134,10 @@ public class Ghost extends GameObject {
 
 			}
 		} else if (eatable && blinking) {
-			after += gameTime - before;
-			if (gameTime > frameTicker + framePeriod) {
-				frameTicker = gameTime;
+			frameTicker+= gameTime;
+			time+=gameTime;
+			if (frameTicker >   framePeriod) {
+				frameTicker = 0;
 				// increment the frame
 				if (!swap)
 					currentFrame++;
@@ -144,14 +145,14 @@ public class Ghost extends GameObject {
 					currentFrame--;
 				if (currentFrame == 0 || currentFrame == 1) {
 					swap = !swap;
-					if (after > 1000) {
-						after = 0;
-						framePeriod -= 80;
+					if (time > 1) {
+						time = 0;
+						framePeriod -= 0.08;
 					}
 				}
 
 			}
-			before = gameTime;
+
 		}
 		// define the rectangle to cut out sprite
 		sourceEatRect.left = currentFrame * spriteEatWidth;

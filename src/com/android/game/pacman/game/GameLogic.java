@@ -52,7 +52,7 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback {
 	private Vibrator v;
 
 	static int BOARD_TILE_SIZE=17;
-	static int BOARD_HEIGHT = 42;
+	static int BOARD_HEIGHT = 31;
 	static int BOARD_WIDTH = 28;
 	static int GHOST_EAT_POINT = 200;
 	static int FOODUP_POINT = 150;
@@ -106,6 +106,7 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback {
 					SoundStuff.sp.stop(ID);
 					eatInRow = 0;
 					first = false;
+					
 				
 			}
 			
@@ -243,7 +244,7 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback {
 		path = boardGame.getPath();
 		food = boardGame.getbGame();
 		pacman = new PacMan(getResources(), new Vect((BOARD_TILE_SIZE
-				* BOARD_WIDTH / 2), BOARD_TILE_SIZE * 34), getContext(),
+				* BOARD_WIDTH / 2), BOARD_TILE_SIZE * 23), getContext(),
 				boardGame.getBlock(), BOARD_TILE_SIZE, 100f);
 		ghosts = new LinkedList<Ghost>();
 
