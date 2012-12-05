@@ -4,6 +4,7 @@ import com.adroid.game.pacman.R;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.Window;
 import android.view.WindowManager;
@@ -16,7 +17,11 @@ public class MainActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		setContentView(new GameLogic(this));
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		int screenHeight = metrics.heightPixels;
+		int screenWidth = metrics.widthPixels;
+		setContentView(new GameLogic(this,screenWidth,screenHeight));
 		
 		
 	}

@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 
 import com.adroid.game.pacman.R;
+import com.android.game.pacman.game.GameLogic;
 import com.android.game.pacman.utils.GameEnum;
 
 public class Ghost extends GameObject {
@@ -26,7 +27,6 @@ public class Ghost extends GameObject {
 	private boolean onlyEyes = false;
 	private boolean blinking = false;
 
-
 	private double frameTicker;
 	private double framePeriod = 0.5f;
 	private boolean swap;
@@ -34,10 +34,8 @@ public class Ghost extends GameObject {
 	private double time; // do mrugania;
 	private int currentFrame;
 
-
-	public Ghost(int size, double speed, Block[][] board, Resources res,
-			Vect initPosition) {
-		super(size, speed, board);
+	public Ghost(double speed, Block[][] board, Resources res, Vect initPosition) {
+		super(speed, board);
 
 		bitmap = BitmapFactory.decodeResource(res,
 				com.adroid.game.pacman.R.drawable.ghost);
@@ -60,7 +58,6 @@ public class Ghost extends GameObject {
 		position = initPosition;
 		nextDir = GameEnum.STOP;
 		direction = new Vect(0, 0);
-		this.size = size;
 		stop = false;
 	}
 
@@ -84,21 +81,25 @@ public class Ghost extends GameObject {
 
 	public void draw(Canvas canvas) {
 
-		destRect.set((float) position.x-size/2, (float) position.y-size/2,
-				(float) position.x + spriteWidth/2+spriteWidth, (float) position.y
-						+ spriteHeight/2+spriteHeight);
+		destRect.set((float) position.x - GameLogic.BOARD_TILE_SIZE / 2,
+				(float) position.y - GameLogic.BOARD_TILE_SIZE / 2,
+				(float) position.x + spriteWidth / 2 + spriteWidth,
+				(float) position.y + spriteHeight / 2 + spriteHeight);
 		boundingRect.set((float) position.x, (float) position.y,
 				(float) position.x + spriteWidth, (float) position.y
 						+ spriteHeight);
 		if (eatable) {
-			boundingRect.set((float)position.x, (float)position.y,(float) position.x
-					+ spriteEatWidth, (float)position.y + spriteEatHeight);
-			destRect.set((float) position.x-size/2, (float) position.y-size/2,
-					(float) position.x + spriteWidth/2+spriteWidth, (float) position.y
-							+ spriteHeight/2+spriteHeight);
+			boundingRect.set((float) position.x, (float) position.y,
+					(float) position.x + spriteEatWidth, (float) position.y
+							+ spriteEatHeight);
+			destRect.set((float) position.x - GameLogic.BOARD_TILE_SIZE / 2,
+					(float) position.y - GameLogic.BOARD_TILE_SIZE / 2,
+					(float) position.x + spriteWidth / 2 + spriteWidth,
+					(float) position.y + spriteHeight / 2 + spriteHeight);
 			canvas.drawBitmap(eatableBitmap, sourceEatRect, destRect, null);
 		} else if (onlyEyes)
-			canvas.drawBitmap(eyes,(float) position.x, (float)position.y, null);
+			canvas.drawBitmap(eyes, (float) position.x, (float) position.y,
+					null);
 		else
 			canvas.drawBitmap(bitmap, sourceRect, destRect, null);
 	}
@@ -136,9 +137,9 @@ public class Ghost extends GameObject {
 
 			}
 		} else if (eatable && blinking) {
-			frameTicker+= gameTime;
-			time+=gameTime;
-			if (frameTicker >   framePeriod) {
+			frameTicker += gameTime;
+			time += gameTime;
+			if (frameTicker > framePeriod) {
 				frameTicker = 0;
 				// increment the frame
 				if (!swap)
@@ -164,10 +165,10 @@ public class Ghost extends GameObject {
 	public void setBlinking(boolean blinking) {
 		this.blinking = blinking;
 		if (!blinking) {
-			time=0;
-			currentFrame=0;
-			framePeriod=500;
-			eatable=false;
+			time = 0;
+			currentFrame = 0;
+			framePeriod = 500;
+			eatable = false;
 		}
 	}
 }

@@ -8,6 +8,7 @@ import android.graphics.Rect;
 import android.hardware.SensorEvent;
 import android.view.MotionEvent;
 
+import com.android.game.pacman.game.GameLogic;
 import com.android.game.pacman.utils.GameEnum;
 
 public class PacMan extends GameObject {
@@ -27,8 +28,8 @@ public class PacMan extends GameObject {
 	private float yAcc;
 
 	public PacMan(Resources res, Vect initPosition, Context context,
-			Block[][] board, int size, double speed) {
-		super(size, speed, board);
+			Block[][] board, double speed) {
+		super(speed, board);
 		dirToChange = GameEnum.STOP;
 		this.res = res;
 		position = initPosition;
@@ -47,14 +48,14 @@ public class PacMan extends GameObject {
 
 		direction = new Vect(0, 1);
 
-		this.size = size;
 		stop = true;
 	} 
 
 	@Override
 	public void draw(Canvas canvas) {
 		
-		destRect.set((float) position.x-size/2, (float) position.y-size/2,
+		destRect.set((float) position.x - GameLogic.BOARD_TILE_SIZE / 2,
+				(float) position.y - GameLogic.BOARD_TILE_SIZE/2,
 				(float) position.x + spriteWidth/2+spriteWidth, (float) position.y
 						+ spriteHeight/2+spriteHeight);
 		boundingRect.set((float) position.x, (float) position.y,
@@ -165,7 +166,7 @@ public class PacMan extends GameObject {
 
 		xAcc = event.values[0];
 		yAcc = event.values[1];
-
+		// jezeli wartosc akcelometra jest wieksza od 1 lub -1
 		if (xAcc > 1) {
 			setDirection(GameEnum.LEFT);
 		} else if (xAcc < -1) {

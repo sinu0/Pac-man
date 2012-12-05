@@ -23,8 +23,13 @@ public class Block extends SolidObject {
 	public void draw(Canvas canvas) {
 
 		if (kind == GameEnum.PATH) {
-			boundingRect.set((float) x-size/2, (float) y-size/2, (float) x + size/2+size, (float) y
-					+ size/2+size);
+			if (selected) {
+				paint.setColor(Color.RED);
+			}else
+				paint.setColor(Color.BLACK);
+				
+			boundingRect.set((float) x - size / 2, (float) y - size / 2,
+					(float) x + size / 2 + size, (float) y + size / 2 + size);
 			canvas.drawRect(boundingRect, paint);
 		}
 

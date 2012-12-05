@@ -10,35 +10,35 @@ import com.android.game.pacman.game.GameLogic;
 import com.android.game.pacman.utils.GameEnum;
 
 public class GameObject {
-	protected Vect position;
-	protected Bitmap bitmap;
+	
 	public RectF boundingRect = new RectF();
 	public RectF destRect = new RectF();
+	
+	protected Vect position;
+	protected Bitmap bitmap;
 	protected boolean isTouched = false;
 	protected int dirToChange;
 	protected double speed;
-	protected boolean rotate = false;
 	protected double angle = 0;
 	protected Vect direction;
 	protected Vect target = new Vect(0, 0);
 	protected boolean stop;
-	protected int size;
-	private Block[][] board;
 	protected int nextDir;
 	protected Rect sourceRect; // the rectangle to be drawn from the animation
 	protected int spriteWidth; // the width of the sprite to calculate the cut
-	private boolean targetReached = true;
 	protected int spriteHeight;
 	protected Resources res;
+	
+	private Block[][] board;
+	private boolean targetReached = true;
 	private Vect newdir = new Vect(0, 0);
 
 	public void update() {
 
 	}
 
-	public GameObject(int size, double speed, Block[][] board) {
+	public GameObject(double speed, Block[][] board) {
 		this.speed = speed;
-		this.size = size;
 		this.board = board;
 	}
 

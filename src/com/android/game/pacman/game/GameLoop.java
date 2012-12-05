@@ -27,15 +27,23 @@ public class GameLoop extends Thread {
 
 		double delay;
 		while (running) {
-
+			canvas = null;
 			last = System.currentTimeMillis();
 			delay = (last - lastFpsTime);
 
 			lastFpsTime = last;
-			canvas = this.surfaceHolder.lockCanvas();
-			gamePanel.render(canvas);
-			surfaceHolder.unlockCanvasAndPost(canvas);
-			gamePanel.update(delay / 1000);
+			try {
+				canvas = this.surfaceHolder.lockCanvas();
+				synchronized (surfaceHolder) {
+					gamePanel.render(canvas);
+					gamePanel.update(delay / 1000);
+				}
+			} finally {
+				if (canvas != null) {
+					surfaceHolder.unlockCanvasAndPost(canvas);
+				}
+			}
+
 		}
 
 	}
