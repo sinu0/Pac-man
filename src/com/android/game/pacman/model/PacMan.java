@@ -26,7 +26,9 @@ public class PacMan extends GameObject {
 	private int soundID = -1;
 	private float xAcc;
 	private float yAcc;
-
+	private float xZero;
+	private float yZero;
+	private boolean first=true;
 	public PacMan(Resources res, Vect initPosition, Context context,
 			Block[][] board, double speed) {
 		super(speed, board);
@@ -166,15 +168,22 @@ public class PacMan extends GameObject {
 
 		xAcc = event.values[0];
 		yAcc = event.values[1];
+		if(!first){
 		// jezeli wartosc akcelometra jest wieksza od 1 lub -1
-		if (xAcc > 1) {
+		if (xAcc >xZero+ 1) {
 			setDirection(GameEnum.LEFT);
-		} else if (xAcc < -1) {
+		} else if (xAcc < xZero-1) {
 			setDirection(GameEnum.RIGHT);
-		} else if (yAcc > 1) {
+		} else if (yAcc > yZero+1) {
 			setDirection(GameEnum.DOWN);
-		} else if (yAcc < -1) {
+		} else if (yAcc < yZero-1) {
 			setDirection(GameEnum.UP);
+		}
+		}else
+		{//zapamietanie pozycji poczatkowej poto aby wygodniej sie sterowalo
+			xZero=xAcc;
+			yZero=yAcc;
+			first=false;
 		}
 
 	}

@@ -294,6 +294,7 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback,
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && start) {
+			
 			pacman.dirAcc(event);
 		}
 
