@@ -7,12 +7,12 @@ import android.graphics.RectF;
 import com.android.game.pacman.utils.GameEnum;
 
 public class SolidObject {
-	protected float x;
-	protected float y;
+	protected double x;
+	protected double y;
 	static Bitmap bitmap;
 	public RectF boundingRect = new RectF();
 	protected boolean isTouched = false;
-	public GameEnum kind;
+	public int kind;
 	protected boolean rotate = false;
 	protected double angle = 0;
 	public SolidObject(int x, int y){
@@ -22,8 +22,8 @@ public class SolidObject {
 	}
 
 	public void draw(Canvas canvas) {
-		canvas.drawBitmap(bitmap, x, y, null);
-		boundingRect = new RectF(x, y, x + bitmap.getWidth(),y + bitmap.getHeight());
+		canvas.drawBitmap(bitmap, (float)x, (float)y, null);
+		boundingRect.set((float)x, (float)y, (float)x + bitmap.getWidth(),(float)y + bitmap.getHeight());
 	}
 
 	

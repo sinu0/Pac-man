@@ -4,7 +4,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.RectF;
 
 import com.android.game.pacman.utils.GameEnum;
 
@@ -21,8 +20,8 @@ public class FoodUp extends SolidObject {
 
 	}
 	public void draw(Canvas canvas) {
-		canvas.drawBitmap(bitmap, x, y, null);
-		boundingRect = new RectF(x, y, x + bitmap.getWidth(),y + bitmap.getHeight());
+		canvas.drawBitmap(bitmap, (float)x, (float)y, null);
+		boundingRect.set((float)x, (float)y, (float)x + bitmap.getWidth(),(float)y + bitmap.getHeight());
 	}
 
 }

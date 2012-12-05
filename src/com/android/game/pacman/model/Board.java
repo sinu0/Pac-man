@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 import android.content.res.Resources;
@@ -15,8 +14,7 @@ import com.android.game.pacman.utils.GameEnum;
 public class Board {
 
 	private LinkedList<SolidObject> bGame;
-	private int x;
-	private int y;
+
 	private int size;
 	private char[][] lvl;
 	private LinkedList<Block> path;
@@ -25,9 +23,8 @@ public class Board {
 	Resources res;
 
 	public Board(int x, int y, int size, Resources res) {
-		this.x = x;
-		this.y = y;
-		this.size = size; 
+
+		this.size = size;
 		this.res = res;
 		blockTab = new Block[x][y];
 		bGame = new LinkedList<SolidObject>();
@@ -53,7 +50,7 @@ public class Board {
 					break;
 				case '.':
 					setFood(j, i, res);
-					
+
 					blockTab[j][i].kind = GameEnum.PATH;
 					break;
 				}
@@ -85,7 +82,7 @@ public class Board {
 
 	private void setFoodUp(int x, int y, Resources res) {
 		FoodUp newF = new FoodUp(x, y, res);
-		
+
 		bGame.add(newF);
 		setPath(x, y);
 

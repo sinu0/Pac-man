@@ -2,7 +2,6 @@ package com.android.game.pacman.game;
 
 import java.util.LinkedList;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,6 +10,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.CountDownTimer;
 import android.os.Vibrator;
 import android.util.Log;
@@ -28,7 +31,9 @@ import com.android.game.pacman.model.SoundStuff;
 import com.android.game.pacman.model.Vect;
 import com.android.game.pacman.utils.GameEnum;
 
-public class GameLogic extends SurfaceView implements SurfaceHolder.Callback {
+public class GameLogic extends SurfaceView implements SurfaceHolder.Callback ,SensorEventListener {
+
+	
 
 	private PacMan pacman;
 
@@ -41,44 +46,34 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback {
 	private Board boardGame;
 	private SoundStuff ss;
 	private Bitmap background;
-	private int points = 0;
-	private int eatInRow = 0; // mnoznik do zjedzonych duszkow
-
 	private CountDownTimer task;
-	private Timer t = new Timer();
-
-	private Paint paint;
-
+	private SensorManager sensorManager;
 	private Vibrator v;
 
-	static int BOARD_TILE_SIZE=17;
-	static int BOARD_HEIGHT = 31;
-	static int BOARD_WIDTH = 28;
-	static int GHOST_EAT_POINT = 200;
-	static int FOODUP_POINT = 150;
-	static int FOOD_POINT = 50;
+	private int points = 0;
+	private int eatInRow = 0; // mnoznik do zjedzonych duszkow
+	private boolean accOn;
+	
+	private final static Paint paint=new Paint();
+	public final static int BOARD_TILE_SIZE=17;
+	public final static int BOARD_HEIGHT = 31;
+	public final static int BOARD_WIDTH = 28;
+	public final static int GHOST_EAT_POINT = 200;
+	public final static int FOODUP_POINT = 150;
+	public final static int FOOD_POINT = 50;
 
 	public GameLogic(Context context) {
 		super(context);
 		setFocusable(true);
 		getHolder().addCallback(this);
-		Bitmap tmpbackground = BitmapFactory.decodeResource(getResources(),
-				R.drawable.blue_gradien);
-
-		float scaleWidth = ((float) 480) / 256;
-		float scaleHeight = ((float) 800) / 256;
-		Matrix matrix = new Matrix();
-		matrix.postScale(scaleWidth, scaleHeight);
-		background = Bitmap.createBitmap(tmpbackground, 0, 0, 256, 256, matrix,
-				false);
+	
 		loop = new GameLoop(getHolder(), this);
 		ss = new SoundStuff(context);
-		paint = new Paint();
 		paint.setStyle(Paint.Style.FILL);
 		v = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
 		
-		//przez 20 sek po 15 zaczna mrugac duchy
-		task = new CountDownTimer(20000, 1000) {
+		//przez 10 sek po 5 zaczna mrugac duchy
+		task = new CountDownTimer(10000, 1000) {
 			private boolean first = false;
 			private int ID;
 			int times=0;
@@ -89,7 +84,7 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback {
 				    first=true;
 				}
 				
-				if(times==15)
+				if(times==5)
 					for (Ghost ghost : ghosts) {
 						ghost.setBlinking(true);
 					}
@@ -106,18 +101,25 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback {
 					SoundStuff.sp.stop(ID);
 					eatInRow = 0;
 					first = false;
+					times=0;
 					
 				
 			}
 			
 		};
 		
+		sensorManager=(SensorManager)context.getSystemService(context.SENSOR_SERVICE);
+		// add listener. The listener will be HelloAndroid (this) class
+		sensorManager.registerListener(this,
+				sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+				SensorManager.SENSOR_DELAY_GAME);
+		
 	}
 
 	public void render(Canvas canvas) {
 		// tlo
 		paint.setColor(Color.BLUE);
-		canvas.drawRect(0, 0, 480, 1000, paint);
+		canvas.drawRect(0, 0, 480, 900, paint);
 		// napis z punktami
 		paint.setColor(Color.WHITE);
 		paint.setTextSize(30);
@@ -133,19 +135,14 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback {
 		for (Ghost ghost : ghosts) {
 			ghost.draw(canvas);
 		}
-		try {
-			finalize();
-		} catch (Throwable e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	
 	}
 
 	public void prepareLevel() {
 		// TODO generate level
 	}
 
-	public void update(float time) {
+	public void update(double time) {
 
 		pacman.update(time, getWidth(), getHeight());
 		for (Ghost ghost : ghosts) {
@@ -159,15 +156,15 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback {
 
 	}
 
-	public void doAi(GameEnum deficultiy) {
+	public void doAi(int deficultiy) {
 		switch (deficultiy) {
-		case EASY:
+		case GameEnum.EASY:
 			// todo
 			break;
 		// todo
-		case NORMAL:
+		case GameEnum.NORMAL:
 			break;
-		case HARD:
+		case GameEnum.HARD:
 			// todo
 			break;
 		}
@@ -225,6 +222,7 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback {
 	public boolean onTouchEvent(android.view.MotionEvent event) {
 
 		pacman.dir(event);
+		
 		return true;
 	}
 
@@ -249,13 +247,13 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback {
 		ghosts = new LinkedList<Ghost>();
 
 		ghosts.add(new Ghost(17, 2, boardGame.getBlock(), getResources(),
-				new Vect(12 * BOARD_TILE_SIZE, 14 * BOARD_TILE_SIZE)));
+				new Vect(11 * BOARD_TILE_SIZE, 14 * BOARD_TILE_SIZE)));
 		ghosts.add(new Ghost(17, 2, boardGame.getBlock(), getResources(),
 				new Vect(13 * BOARD_TILE_SIZE, 14 * BOARD_TILE_SIZE)));
 		ghosts.add(new Ghost(17, 2, boardGame.getBlock(), getResources(),
-				new Vect(14 * BOARD_TILE_SIZE, 14 * BOARD_TILE_SIZE)));
-		ghosts.add(new Ghost(17, 2, boardGame.getBlock(), getResources(),
 				new Vect(15 * BOARD_TILE_SIZE, 14 * BOARD_TILE_SIZE)));
+		ghosts.add(new Ghost(17, 2, boardGame.getBlock(), getResources(),
+				new Vect(17 * BOARD_TILE_SIZE, 14 * BOARD_TILE_SIZE)));
 		loop.setRunning(true);
 		loop.start();
 		int id=-1;
@@ -275,6 +273,28 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback {
 			}
 		}
 
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		if(event.sensor.getType()==Sensor.TYPE_ACCELEROMETER){
+			pacman.dirAcc(event);
+		}
+		
+	}
+
+	public boolean isAccOn() {
+		return accOn;
+	}
+
+	public void setAccOn(boolean accOn) {
+		this.accOn = accOn;
 	}
 
 }

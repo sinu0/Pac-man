@@ -6,134 +6,156 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.RectF;
 
+import com.android.game.pacman.game.GameLogic;
 import com.android.game.pacman.utils.GameEnum;
 
 public class GameObject {
 	protected Vect position;
 	protected Bitmap bitmap;
 	public RectF boundingRect = new RectF();
+	public RectF destRect = new RectF();
 	protected boolean isTouched = false;
-	protected GameEnum dirToChange;
-	protected float speed;
+	protected int dirToChange;
+	protected double speed;
 	protected boolean rotate = false;
 	protected double angle = 0;
 	protected Vect direction;
-	protected Vect target;
+	protected Vect target = new Vect(0, 0);
 	protected boolean stop;
 	protected int size;
 	private Block[][] board;
-	protected GameEnum nextDir;
+	protected int nextDir;
 	protected Rect sourceRect; // the rectangle to be drawn from the animation
 	protected int spriteWidth; // the width of the sprite to calculate the cut
-								// out
+	private boolean targetReached = true;
 	protected int spriteHeight;
 	protected Resources res;
+	private Vect newdir = new Vect(0, 0);
 
 	public void update() {
 
 	}
 
-	public GameObject(int size, float speed, Block[][] board) {
+	public GameObject(int size, double speed, Block[][] board) {
 		this.speed = speed;
 		this.size = size;
 		this.board = board;
 	}
 
 	public void rotate(double angle) {
-		rotate = true;
 		this.angle = angle;
 	}
 
 	public void draw(Canvas canvas) {
-		boundingRect.set(position.x, position.y, position.x + spriteWidth,
-				position.y + spriteHeight);
+		boundingRect.set((float) position.x, (float) position.y,
+				(float) position.x + spriteWidth, (float) position.y
+						+ spriteHeight);
 		canvas.drawBitmap(bitmap, sourceRect, boundingRect, null);
 	}
 
-	synchronized public void move(float dt) {
+	synchronized public void move(double dt) {
 
-		if (target == null) {
+		if (targetReached) {
 			if (dirToChange == GameEnum.UP) {
-				direction = new Vect(0, -1);
-				rotate(270);
+				direction.x=0;
+				direction.y=-1;
+				angle=270;
 			}
 			if (dirToChange == GameEnum.DOWN) {
-				direction = new Vect(0, 1);
-				rotate(90);
+				direction.x=0;
+				direction.y=1;
+				angle=90;
 			}
 			if (dirToChange == GameEnum.LEFT) {
-				direction = new Vect(-1, 0);
-				rotate(180);
+				direction.x=-1;
+				direction.y=0;
+				angle=180;
 			}
 			if (dirToChange == GameEnum.RIGHT) {
-				direction = new Vect(1, 0);
-				rotate(0);
+				direction.x=1;
+				direction.y=0;
+				angle=0;
 			}
 			if (canMove(position, direction)) {
 				stop = false;
-
-				target = position.add(direction.mulitply(size));
+				targetReached = false;
+				target = position.add(direction
+						.mulitply(GameLogic.BOARD_TILE_SIZE));
 			} else
 				stop = true;
 		}
-		if (target != null) {
-			if (moveTowards(target,dt))
-				target = null;
+		if (!targetReached) {
+			if (moveTowards(target, dt))
+				targetReached = true;
 		}
 
 	}
 
-	private boolean moveTowards(Vect goal,float dt) {
-		if (position.equals(goal))
-			return true;
-		Vect dir = Vect.normalize(goal.subtract(position)); // kierunek ruchu
-		position = position.add(dir.mulitply(speed*dt)); // nowa pozycja
+	private boolean moveTowards(Vect goal, double dt) {
 		
-		if (Math.abs(Vect.dot(dir, Vect.normalize(goal.subtract(position))) + 1) <speed*dt) // jezeli
-																							// minął
-																							// cel
-			position = goal;
+		if (position.equals(goal)) //jezeli obiekt osiagna cel
+			return true;
+		
+		Vect dir = Vect.normalize(goal.subtract(position)); // kierunek ruchu
 
+		position = position.add(dir.mulitply(speed * dt)); // nowa pozycja
+
+		if (Math.abs(Vect.dot(dir, Vect.normalize(goal.subtract(position))) + 1) < speed* dt) //czy obiekt minol cel 
+			position=goal;
 		return position.equals(goal);
 	}
 
 	private boolean canMove(Vect position, Vect direction) {
-		if (direction == null)
+		if (direction.x == 0 && direction.y == 0)
 			return false;
-		int nx = (int) (position.x / size) + (int) direction.x;
-		int ny = (int) (position.y / size) + (int) direction.y;
-		if (nx < 0 || ny < 0 || nx >= board.length || ny >= board[0].length)
+		int nx = (int) (position.x / GameLogic.BOARD_TILE_SIZE)
+				+ (int) direction.x;
+		int ny = (int) (position.y / GameLogic.BOARD_TILE_SIZE)
+				+ (int) direction.y;
+		if (nx < 0 || ny < 0 || nx >= GameLogic.BOARD_WIDTH
+				|| ny >= GameLogic.BOARD_HEIGHT)
 			return false;
 		return board[nx][ny].kind == GameEnum.PATH;
 
 	}
+	//sprawdzanie czy jest mozliwosc zmiany kierunku na nowy
+	private boolean check(int dir) {
+		newdir.x = 0;
+		newdir.y = 0;
 
-	private boolean check(GameEnum dir) {
-		Vect newdir = null;
-		if (dir == GameEnum.UP)
-			newdir = new Vect(0, -1);
-		if (dir == GameEnum.DOWN)
-			newdir = new Vect(0, 1);
-		if (dir == GameEnum.LEFT)
-			newdir = new Vect(-1, 0);
-		if (dir == GameEnum.RIGHT)
-			newdir = new Vect(1, 0);
-
+		if (dir == GameEnum.UP) {
+			newdir.x = 0;
+			newdir.y = -1;
+		}
+		if (dir == GameEnum.DOWN) {
+			newdir.x = 0;
+			newdir.y = 1;
+		}
+		if (dir == GameEnum.LEFT) {
+			newdir.x = -1;
+			newdir.y = 0;
+		}
+		if (dir == GameEnum.RIGHT) {
+			newdir.x = 1;
+			newdir.y = 0;
+		}
 		return canMove(position, newdir);
 	}
 
-	public void setDirection(GameEnum dir) {
-
-		if (position.x % 17 == 0 && position.y % 17 == 0) {
+	public void setDirection(int dir) {
+		//jezeli obiekt jest wyrownany do plytki to zmien kierunek jezeli nie to zapamietaj ten kierunke na puxniej
+		if (position.x % GameLogic.BOARD_TILE_SIZE == 0
+				&& position.y % GameLogic.BOARD_TILE_SIZE == 0) {
 			if (check(dir))
 				dirToChange = dir;
 		} else
 			nextDir = dir;
 
 	}
-
+	//sprawdza czy obiekt moze zmienic kierunke na nowy 
 	public void canChangeDir() {
-		if (position.x % 17 == 0 && position.y % 17 == 0) {
+		if (position.x % GameLogic.BOARD_TILE_SIZE == 0
+				&& position.y % GameLogic.BOARD_TILE_SIZE == 0) {
 			if (check(nextDir)) {
 				dirToChange = nextDir;
 				nextDir = GameEnum.STOP;
@@ -141,7 +163,8 @@ public class GameObject {
 		}
 
 	}
-	public void setIsTouched(boolean state){
-		isTouched=state;
+
+	public void setIsTouched(boolean state) {
+		isTouched = state;
 	}
 }

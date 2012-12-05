@@ -18,6 +18,7 @@ public class MainActivity extends Activity {
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(new GameLogic(this));
 		
+		
 	}
 	
 	@Override

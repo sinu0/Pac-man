@@ -2,18 +2,19 @@ package com.android.game.pacman.model;
 
 public class Vect {
 
-	public float x;
-	public float y;
+	public double x;
+	public double y;
 
-	public Vect(float x, float y ) {
+	public Vect(double x, double y ) {
 		this.x = x;
 		this.y = y;
 	}
 
 	public Vect add(Vect another) {
-		return new Vect(x + another.x, y + another.y);
+		return new Vect(x+another.x,y+another.y);
+		
 	}
-	public Vect mulitply(float speed){
+	public Vect mulitply(double speed){
 		x=x*speed;
 		y=y*speed;
 		return this;
@@ -27,8 +28,12 @@ public class Vect {
 	public Vect subtract(Vect vect){
 		return new Vect(x-vect.x,y-vect.y);
 	}
+	public void set(double x,double y){
+		this.x=x;
+		this.y=y;
+	}
 	static public  Vect normalize(Vect vect){
-		return new Vect((float)(vect.x/vect.getLength()), (float)(vect.y/vect.getLength()));
+		return new Vect((double)(vect.x/vect.getLength()), (double)(vect.y/vect.getLength()));
 	}
 	static public double dot(Vect one,Vect two){
 		return one.x*two.x+one.y*two.y;
