@@ -10,7 +10,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 public class MainActivity extends Activity {
-
+	GameLogic game;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -21,7 +21,8 @@ public class MainActivity extends Activity {
 		getWindowManager().getDefaultDisplay().getMetrics(metrics);
 		int screenHeight = metrics.heightPixels;
 		int screenWidth = metrics.widthPixels;
-		setContentView(new GameLogic(this,screenWidth,screenHeight));
+		game = new GameLogic(this,screenWidth,screenHeight);
+		setContentView(game);
 		
 		
 	}
@@ -32,5 +33,16 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
 		return true;
 	}
+//	@Override
+//	protected void onPause() {
+//		game.loop=null;
+//		super.onPause();
+//		
+//	}
+//	@Override
+//	protected void onResume() {
+//		game.loop = new GameLoop(game.getHolder(), game);
+//		super.onResume();
+//	}
 
 }

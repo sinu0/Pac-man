@@ -28,9 +28,10 @@ public class GameObject {
 	protected int spriteWidth; // the width of the sprite to calculate the cut
 	protected int spriteHeight;
 	protected Resources res;
+	protected boolean targetReached = true;
 	
 	private Block[][] board;
-	private boolean targetReached = true;
+	
 	private Vect newdir = new Vect(0, 0);
 
 	public void update() {

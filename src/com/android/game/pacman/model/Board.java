@@ -4,11 +4,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
+import android.R.integer;
 import android.content.res.Resources;
+import android.util.Log;
+import android.util.Pair;
 
 import com.adroid.game.pacman.R;
+import com.android.game.pacman.game.GameLogic;
 import com.android.game.pacman.utils.GameEnum;
 
 public class Board {
@@ -22,20 +27,20 @@ public class Board {
 	private Block[][] blockTab;
 	Resources res;
 
-	public Board(int x, int y, int size, Resources res) {
+	public Board(Resources res, int sourceLvl) {
 
-		this.size = size;
-		this.res = res;
-		blockTab = new Block[x][y];
+		this.size = GameLogic.BOARD_TILE_SIZE;
+		lvl = readLvl(res, sourceLvl);
+		blockTab = new Block[GameLogic.WIDTH][GameLogic.BOARD_HEIGHT];
 		bGame = new LinkedList<SolidObject>();
-		lvl = readLvl(x, y, res);
+
 		path = new LinkedList<Block>();
 		wall = new LinkedList<Block>();
 		// Bitmap bitmap=
-		for (int i = 0; i < y; i++) {
-			for (int j = 0; j < x; j++) {
+		for (int i = 0; i < GameLogic.BOARD_HEIGHT; i++) {
+			for (int j = 0; j < GameLogic.BOARD_WIDTH; j++) {
 
-				blockTab[j][i] = new Block(j, i, size);
+				blockTab[j][i] = new Block(j, i);
 				switch (lvl[j][i]) {
 				case 'x':
 					setBlock(j, i);
@@ -62,13 +67,13 @@ public class Board {
 	}
 
 	private void setBlock(int x, int y) {
-		Block newB = new Block(x, y, size);
+		Block newB = new Block(x, y);
 		wall.add(newB);
 	}
 
 	private void setPath(int x, int y) {
 
-		Block newB = new Block(x, y, size);
+		Block newB = new Block(x, y);
 		newB.kind = GameEnum.PATH;
 		path.add(newB);
 
@@ -104,33 +109,50 @@ public class Board {
 		return wall;
 	}
 
-	public char[][] readLvl(int x, int y, Resources res) {
+	public char[][] readLvl(Resources res, int sourceLvl) {
+		Pair<char[][], Pair<Integer, Integer>> x_y = readl(res, sourceLvl);
+		GameLogic.BOARD_HEIGHT = x_y.second.second;
+		GameLogic.BOARD_WIDTH = x_y.second.first;
+		GameLogic.BOARD_TILE_SIZE = (int) ( GameLogic.WIDTH/x_y.second.first );
+		Log.v("dem",String.valueOf(GameLogic.BOARD_TILE_SIZE));
+		return x_y.first;
 
-		InputStream inputStream = res.openRawResource(R.raw.lvl);
+	}
+
+	public static Pair<char[][], Pair<Integer, Integer>> readl(Resources res,
+			int sourceLvl) {
+		InputStream inputStream = res.openRawResource(sourceLvl);
 
 		InputStreamReader inputreader = new InputStreamReader(inputStream);
 		BufferedReader buffreader = new BufferedReader(inputreader);
+		ArrayList<Character> tab = new ArrayList<Character>();
 		int r;
-		char[][] buf = new char[x][y];
 		int _x = 0, _y = 0;
 		try {
 			while ((r = buffreader.read()) != -1) {
 				if (r == 10) {
-
 					_y++;
 					_x = 0;
-
 				} else {
-
-					buf[_x][_y] = (char) r;
 					_x++;
+					tab.add((char) r);
 				}
 			}
 		} catch (IOException e) {
-			return null;
+			// return null;
 		}
+		_y++;
+		int index = 0;
+		
+		char[][] buf = new char[_x][_y];
+		for (int i = 0; i < _y; i++) {
+			for (int j = 0; j < _x; j++) {
+				buf[j][i] = tab.get((index));
+				index++;
+			}
 
-		return buf;
-
+		}
+		return new Pair<char[][], Pair<Integer, Integer>>(buf,
+				new Pair<Integer, Integer>(_x, _y));
 	}
 }

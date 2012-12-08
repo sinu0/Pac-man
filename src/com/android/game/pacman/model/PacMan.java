@@ -23,43 +23,52 @@ public class PacMan extends GameObject {
 	private double x1, x2, y1, y2, dx, dy;
 	private boolean isPlaying = false;
 	boolean swap = false;
-	private int soundID = -1;
+	private int soundID1 = -1;
+	private int soundID2 = -1;
 	private float xAcc;
 	private float yAcc;
 	private float xZero;
 	private float yZero;
-	private boolean first=true;
+	private boolean first = true;
+	private boolean die = false;
+	private int life;
+	private double second = 0;
+	private Vect initVectl;
+
 	public PacMan(Resources res, Vect initPosition, Context context,
-			Block[][] board, double speed) {
+			Block[][] board, double speed, int life) {
 		super(speed, board);
+		initVectl = initPosition;
+		this.life = life;
 		dirToChange = GameEnum.STOP;
 		this.res = res;
 		position = initPosition;
 		bitmap = BitmapFactory.decodeResource(res,
-				com.adroid.game.pacman.R.drawable.pacmantaa ); 
+				com.adroid.game.pacman.R.drawable.pacmantaa);
 		spriteHeight = bitmap.getHeight();
 		spriteWidth = bitmap.getWidth() / 3; // ilosc dostepnych klatek
 		sourceRect = new Rect(0, 0, spriteWidth, spriteHeight);
 
 		framePeriod = (double) (0.25) / 2;
 		do {
-			soundID = SoundStuff.sp.play(SoundStuff.pacamnWalk, 1, 1, 1, -1, 1);
-		} while (soundID == 0);
- 
+			soundID1 = SoundStuff.sp
+					.play(SoundStuff.pacamnWalk, 1, 1, 1, -1, 1);
+		} while (soundID1 == 0);
+
 		nextDir = GameEnum.STOP;
 
 		direction = new Vect(0, 1);
 
 		stop = true;
-	} 
+	}
 
 	@Override
 	public void draw(Canvas canvas) {
-		
+
 		destRect.set((float) position.x - GameLogic.BOARD_TILE_SIZE / 2,
-				(float) position.y - GameLogic.BOARD_TILE_SIZE/2,
-				(float) position.x + spriteWidth/2+spriteWidth, (float) position.y
-						+ spriteHeight/2+spriteHeight);
+				(float) position.y - GameLogic.BOARD_TILE_SIZE / 2,
+				(float) position.x + spriteWidth / 2 + spriteWidth,
+				(float) position.y + spriteHeight / 2 + spriteHeight);
 		boundingRect.set((float) position.x, (float) position.y,
 				(float) position.x + spriteWidth, (float) position.y
 						+ spriteHeight);
@@ -74,18 +83,38 @@ public class PacMan extends GameObject {
 
 	// the update method for ship
 	public void update(double gameTime, int canvasWidth, int canvasHeiht) {
+		if (die) {
+			if (!stop) {
+				stop = true;
+				handleSound();
+			}
+			second += gameTime;
+			if (second >= 1) {
+				die = false;
+				life--;
+				second = 0;
+				position = initVectl;
+				targetReached = true;
+			}
+		} else {
+			move(gameTime);
+			calculateSourceRect(gameTime);
+			handleSound();
+			canChangeDir();
 
-		move(gameTime);
-		calculateSourceRect(gameTime);
-		// borders();
-		handleSound();
-		canChangeDir();
+		}
 
 	}
 
-	public void playSound(int kind) {
+	private void playDieSound() {
+
+		do {
+			soundID2 = SoundStuff.sp.play(SoundStuff.gameOver, 1, 1, 1, 0, 1);
+		} while (soundID2 == 0);
 
 	}
+
+
 
 	public void dir(MotionEvent event) {
 
@@ -124,11 +153,17 @@ public class PacMan extends GameObject {
 
 	public void handleSound() {
 		if (stop) {
-			SoundStuff.sp.pause(soundID);
+			SoundStuff.sp.pause(soundID1);
 			isPlaying = false;
 		} else if (!isPlaying) {
-			SoundStuff.sp.resume(soundID);
+			SoundStuff.sp.resume(soundID1);
 			isPlaying = true;
+		}
+		if(stop && die)
+		{
+			do {
+				soundID2 = SoundStuff.sp.play(SoundStuff.gameOver, 1, 1, 1, 0, 1);
+			} while (soundID2 == 0);
 		}
 	}
 
@@ -160,32 +195,37 @@ public class PacMan extends GameObject {
 	}
 
 	public void die() {
-		stop = true;
-
+		die = true;
 	}
 
 	public void dirAcc(SensorEvent event) {
 
 		xAcc = event.values[0];
 		yAcc = event.values[1];
-		if(!first){
-		// jezeli wartosc akcelometra jest wieksza od 1 lub -1
-		if (xAcc >xZero+ 1) {
-			setDirection(GameEnum.LEFT);
-		} else if (xAcc < xZero-1) {
-			setDirection(GameEnum.RIGHT);
-		} else if (yAcc > yZero+1) {
-			setDirection(GameEnum.DOWN);
-		} else if (yAcc < yZero-1) {
-			setDirection(GameEnum.UP);
-		}
-		}else
-		{//zapamietanie pozycji poczatkowej poto aby wygodniej sie sterowalo
-			xZero=xAcc;
-			yZero=yAcc;
-			first=false;
+		if (!first) {
+			// jezeli wartosc akcelometra jest wieksza od 1 lub -1
+			if (xAcc > xZero + 1) {
+				setDirection(GameEnum.LEFT);
+			} else if (xAcc < xZero - 1) {
+				setDirection(GameEnum.RIGHT);
+			} else if (yAcc > yZero + 1) {
+				setDirection(GameEnum.DOWN);
+			} else if (yAcc < yZero - 1) {
+				setDirection(GameEnum.UP);
+			}
+		} else {// zapamietanie pozycji poczatkowej poto aby wygodniej sie
+				// sterowalo
+			xZero = xAcc;
+			yZero = yAcc;
+			first = false;
 		}
 
+	}
+
+	public void stop() {
+		SoundStuff.sp.stop(soundID1);
+		
+		
 	}
 
 }

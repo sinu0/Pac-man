@@ -42,7 +42,7 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback,
 	private LinkedList<SolidObject> food;
 	private LinkedList<Ghost> ghosts;
 
-	private GameLoop loop;
+	public GameLoop loop;
 	private Board boardGame;
 	private SoundStuff ss;
 	private CountDownTimer task;
@@ -55,9 +55,9 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback,
 	private boolean start = false;
 
 	private final static Paint paint = new Paint();
-	public static int BOARD_TILE_SIZE = 17;
-	public final static int BOARD_HEIGHT = 31;
-	public final static int BOARD_WIDTH = 28;
+	public static int BOARD_TILE_SIZE;
+	public static int BOARD_HEIGHT;
+	public static int BOARD_WIDTH;
 	public final static int GHOST_EAT_POINT = 200;
 	public final static int FOODUP_POINT = 150;
 	public final static int FOOD_POINT = 50;
@@ -71,13 +71,10 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback,
 
 		WIDTH = w;
 		HEIGHT = h;
-		BOARD_TILE_SIZE = (int) (WIDTH / BOARD_WIDTH);
 
 		loop = new GameLoop(getHolder(), this);
 		ss = new SoundStuff(context);
 		paint.setStyle(Paint.Style.FILL);
-		v = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
-
 		// przez 10 sek po 5 zaczna mrugac duchy
 		task = new CountDownTimer(10000, 1000) {
 			private boolean first = false;
@@ -86,9 +83,14 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback,
 
 			@Override
 			public void onTick(long millisUntilFinished) {
+
 				if (!first) {
 					ID = SoundStuff.sp.play(SoundStuff.ghostSiren, 1, 1, 1, -1,
 							1);
+
+					for (Ghost ghost : ghosts) {
+						ghost.setEatable(true);
+					}
 					first = true;
 				}
 
@@ -103,8 +105,7 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback,
 			@Override
 			public void onFinish() {
 				for (Ghost ghost : ghosts) {
-					ghost.setEatable(false);
-					ghost.setBlinking(false);
+					ghost.reset();
 				}
 				SoundStuff.sp.stop(ID);
 				eatInRow = 0;
@@ -114,13 +115,6 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback,
 			}
 
 		};
-
-		sensorManager = (SensorManager) context
-				.getSystemService(context.SENSOR_SERVICE);
-		// add listener. The listener will be HelloAndroid (this) class
-		sensorManager.registerListener(this,
-				sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-				SensorManager.SENSOR_DELAY_GAME);
 
 	}
 
@@ -146,8 +140,31 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback,
 
 	}
 
-	public void prepareLevel() {
-		// TODO generate level
+	public void loadNextLvl() {
+		task.cancel();
+		pacman.stop();
+		boardGame = new Board(getResources(), R.raw.lvl);
+
+		wall = boardGame.getWall();
+		path = boardGame.getPath();
+		food = boardGame.getbGame();
+		pacman = new PacMan(getResources(), new Vect((BOARD_TILE_SIZE
+				* BOARD_WIDTH / 2), BOARD_TILE_SIZE * 23), getContext(),
+				boardGame.getBlock(), 100f, 3);
+		ghosts = new LinkedList<Ghost>();
+
+		ghosts.add(new Ghost(2, boardGame.getBlock(), getResources(), new Vect(
+				11 * BOARD_TILE_SIZE, 14 * BOARD_TILE_SIZE)));
+		ghosts.add(new Ghost(2, boardGame.getBlock(), getResources(), new Vect(
+				13 * BOARD_TILE_SIZE, 14 * BOARD_TILE_SIZE)));
+		ghosts.add(new Ghost(2, boardGame.getBlock(), getResources(), new Vect(
+				15 * BOARD_TILE_SIZE, 14 * BOARD_TILE_SIZE)));
+		ghosts.add(new Ghost(2, boardGame.getBlock(), getResources(), new Vect(
+				17 * BOARD_TILE_SIZE, 14 * BOARD_TILE_SIZE)));
+		int id = -1;
+		do {
+			id = SoundStuff.sp.play(SoundStuff.gameStart, 1, 1, 1, 0, 1);
+		} while (id == 0);
 	}
 
 	public void update(double time) {
@@ -159,7 +176,7 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback,
 		otherCollision();
 		handleCollsion();
 		if (food.isEmpty()) {
-			// do end game stuff
+			loadNextLvl();
 		}
 
 	}
@@ -211,12 +228,9 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback,
 				if (food.get(i).kind == GameEnum.FOODUP) {
 					points += FOODUP_POINT;
 					v.vibrate(100);
-
+					task.onFinish();
 					task.start();
-					for (Ghost ghost : ghosts) {
-						ghost.setEatable(true);
 
-					}
 				} else
 					points += FOOD_POINT;
 
@@ -238,21 +252,23 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback,
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
-		// TODO Auto-generated method stub
+		WIDTH = width;
+		HEIGHT = height;
+		BOARD_TILE_SIZE = (int) (WIDTH / BOARD_WIDTH);
 
 	}
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		// BOARD_TILE_SIZE=getWidth()/28;
-		boardGame = new Board(BOARD_WIDTH, BOARD_HEIGHT, BOARD_TILE_SIZE,
-				getResources());
+
+		boardGame = new Board(getResources(), R.raw.lvl0);
+
 		wall = boardGame.getWall();
 		path = boardGame.getPath();
 		food = boardGame.getbGame();
 		pacman = new PacMan(getResources(), new Vect((BOARD_TILE_SIZE
 				* BOARD_WIDTH / 2), BOARD_TILE_SIZE * 23), getContext(),
-				boardGame.getBlock(), 100f);
+				boardGame.getBlock(), 100f, 3);
 		ghosts = new LinkedList<Ghost>();
 
 		ghosts.add(new Ghost(2, boardGame.getBlock(), getResources(), new Vect(
@@ -263,13 +279,21 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback,
 				15 * BOARD_TILE_SIZE, 14 * BOARD_TILE_SIZE)));
 		ghosts.add(new Ghost(2, boardGame.getBlock(), getResources(), new Vect(
 				17 * BOARD_TILE_SIZE, 14 * BOARD_TILE_SIZE)));
-		loop.setRunning(true);
-		loop.start();
-		start = true;
 		int id = -1;
 		do {
 			id = SoundStuff.sp.play(SoundStuff.gameStart, 1, 1, 1, 0, 1);
 		} while (id == 0);
+		sensorManager = (SensorManager) getContext().getSystemService(
+				getContext().SENSOR_SERVICE);
+		// add listener. The listener will be HelloAndroid (this) class
+		sensorManager.registerListener(this,
+				sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+				SensorManager.SENSOR_DELAY_GAME);
+		v = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
+		loop.setRunning(true);
+		loop.start();
+		start = true;
+
 	}
 
 	@Override
@@ -294,7 +318,7 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback,
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && start) {
-			
+
 			pacman.dirAcc(event);
 		}
 
@@ -306,6 +330,10 @@ public class GameLogic extends SurfaceView implements SurfaceHolder.Callback,
 
 	public void setAccOn(boolean accOn) {
 		this.accOn = accOn;
+	}
+
+	public void stop() {
+
 	}
 
 }

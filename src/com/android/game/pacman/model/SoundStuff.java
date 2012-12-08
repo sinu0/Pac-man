@@ -21,7 +21,7 @@ public class SoundStuff {
 		pacamnWalk = sp.load(context, R.raw.pacman_walk, 1);
 		ghostSiren = sp.load(context, R.raw.pacman_siren, 1);
 		gameStart = sp.load(context, R.raw.pacman_start, 1);
-		gameOver = sp.load(context, R.raw.pacman_die, 1);
+		gameOver = sp.load(context, R.raw.pacmandie, 1);
 		pacmanCherry = sp.load(context, R.raw.pacman_cherry, 1);
 		pacmanEatGhost = sp.load(context, R.raw.pacman_ghost_eating, 1);
 

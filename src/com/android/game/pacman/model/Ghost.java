@@ -107,6 +107,16 @@ public class Ghost extends GameObject {
 	public void setEatable(boolean eat) {
 		eatable = eat;
 
+
+	}
+	public void reset(){
+		time = 0;
+		currentFrame = 0;
+		framePeriod = 0.5f;
+		blinking = false;
+		eatable = false;
+		frameTicker = 0;
+		swap=false;
 	}
 
 	public boolean isEatable() {
@@ -164,11 +174,6 @@ public class Ghost extends GameObject {
 
 	public void setBlinking(boolean blinking) {
 		this.blinking = blinking;
-		if (!blinking) {
-			time = 0;
-			currentFrame = 0;
-			framePeriod = 500;
-			eatable = false;
-		}
+
 	}
 }

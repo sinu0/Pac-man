@@ -4,17 +4,17 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import com.android.game.pacman.game.GameLogic;
 import com.android.game.pacman.utils.GameEnum;
 
 public class Block extends SolidObject {
 
 	private boolean selected = false;
-	private int size;
 	static Paint paint = new Paint();
 
-	public Block(int x, int y, int size) {
-		super(x * size, y * size);
-		this.size = size;
+	public Block(int x, int y) {
+		super(x * GameLogic.BOARD_TILE_SIZE, y * GameLogic.BOARD_TILE_SIZE);
+	
 
 		paint.setColor(Color.BLACK);
 		paint.setStyle(Paint.Style.FILL);
@@ -28,8 +28,8 @@ public class Block extends SolidObject {
 			}else
 				paint.setColor(Color.BLACK);
 				
-			boundingRect.set((float) x - size / 2, (float) y - size / 2,
-					(float) x + size / 2 + size, (float) y + size / 2 + size);
+			boundingRect.set((float) x - GameLogic.BOARD_TILE_SIZE / 2, (float) y - GameLogic.BOARD_TILE_SIZE / 2,
+					(float) x + GameLogic.BOARD_TILE_SIZE / 2 + GameLogic.BOARD_TILE_SIZE, (float) y + GameLogic.BOARD_TILE_SIZE / 2 + GameLogic.BOARD_TILE_SIZE);
 			canvas.drawRect(boundingRect, paint);
 		}
 
